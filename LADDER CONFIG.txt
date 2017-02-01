@@ -1,0 +1,27 @@
+ POSITION      NAME     CONNECTION                   LADDER ID           NOTE         
+     1     Scintillator other DAQ sys                            
+     2          Y1        channel     7   @ TRB   1      31     
+     3          X1        channel     6   @ TRB   1      30     
+     4          Y2        channel     1   @ TRB   1      25     
+     5          X2        channel     0   @ TRB   1      24     
+     6          Y3        channel     0   @ TRB   3      72     
+     7          X3        channel     1   @ TRB   3      73     
+     8       LPFM116B     channel     7   @ TRB   4      103    
+     9       LGFM072T     channel     6   @ TRB   4      102    
+    10       LGFM057T       NC                                   High leakage current 
+    11       LGFM018B     channel     1   @ TRB   4      97        Special bonding    
+    12       LGFM069T       NC                                         EQM Vas        
+    13       LGFM074T     channel     0   @ TRB   4      96     
+    14       LGFM073T       NC                                  
+    15       LGFM031T     channel     7   @ TRB   5      127    
+    16       LPFM999B     channel     6   @ TRB   5      126        4 Si Prototype    
+    17       LPFM031B       NC                                          VA mix        
+    18       LGFM071T     channel     1   @ TRB   5      121    
+    19       LPFM069B     channel     0   @ TRB   5      120    
+    20          Y4        channel     6   @ TRB   3      78     
+    21          X4        channel     7   @ TRB   3      79     
+    22          Y5        channel     0   @ TRB   0       0     
+    23          X5        channel     1   @ TRB   0       1     
+    24          Y6        channel     6   @ TRB   0       6     
+    25          X6        channel     7   @ TRB   0       7     
+    26     Scintillator other DAQ sys                            
