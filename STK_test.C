@@ -64,7 +64,7 @@ using namespace std;
 #include "DmpSoftware/trunk/Event/Ams/include/ScintillatorCluster.h"
 
 
-#define NLadders 2
+#define NLadders 20
 #define NScint 8
 
 
@@ -100,11 +100,8 @@ void STK_test(char filename[200], char runnumber[200]){
  //Ordered   ladders ={31,30,25,24,72,73,103,102,97,96,127,126,121,120,78,79,0,1,6,7}
  // ladder names={"1Y","1X","2Y","2X","3Y","3X","LPFM116B","LGFM072T","LGFM018B","LGFM084T","LGFM031T","LPFM999B","LGFM071T","LPFM069B","4Y","4X,"5Y","5X","6Y","6X"}
 
- //const char *ladderName[NLadders]={"1Y","1X","2Y","2X","3Y","3X","LPFM116B","LGFM072T","LGFM001B","LGFM084T","LGFM031T","LPFM999B","LGFM071T","LPFM069B","4Y","4X","5Y","5X","6Y","6X"};
- // int ladderID[NLadders]={31,30,25,24,72,73,103,102,97,96,127,126,121,120,78,79,0,1,6,7};
-
- const char *ladderName[NLadders]={"LPFM116B","LGFM001B"};
- int ladderID[NLadders]={103,97};
+ const char *ladderName[NLadders]={"1Y","1X","2Y","2X","3Y","3X","LPFM116B","LGFM072T","LGFM001B","LGFM084T","LGFM031T","LPFM999B","LGFM071T","LPFM069B","4Y","4X","5Y","5X","6Y","6X"};
+ int ladderID[NLadders]={31,30,25,24,72,73,103,102,97,96,127,126,121,120,78,79,0,1,6,7};
   
  int ladder;
 
