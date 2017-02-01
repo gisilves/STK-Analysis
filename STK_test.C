@@ -67,6 +67,7 @@ using namespace std;
 #define NLadders 20
 #define NScint 8
 
+//GitHub test//
 
 void STK_test(char filename[200], char runnumber[200]){
 
