@@ -50,7 +50,7 @@ bool debug = false;
 
 int run_id = 0;
 TString ion_name[16]	 = {	"run"	,"H"	,"He"	,"Li"	,"Be"	,"B"	,"C"	,"N"	,"O"	,"F"	,"Ne"	,"Na"	,"Mg"	,"Al"	,"Si"	,"P"    }; // run_id
-double ion_mean_pos[656] = {	00	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1     ,  // 0
+double ion_mean_pos[32] = {	00	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1     ,  // 0
 				155     ,-1     ,20.89  ,29.97  ,40.4   ,49.78  ,58.63  ,66     ,73.48  ,79.76  ,86.51  ,92.2   ,97.55  ,103.27 ,107.83 ,111.91 }; // 40
 
 //---------------------------------------- track fitting -------------------------------------//
@@ -63,8 +63,6 @@ double func(float z, double *par)
 }
 
 // define global data points
-//const Int_t ndatapoints = 6;
-//double pos_xy[ndatapoints],pos_z[ndatapoints],pos_xy_error[ndatapoints];
 int ndatapoints = 6;
 vector<double> pos_xy, pos_xy_error, pos_z;
 
@@ -125,13 +123,6 @@ vector<double> fit_track()
   arglist[1] = 1.;
   gMinuit->mnexcm("MIGRAD", arglist ,2,ierflg);
 
-  // // Print results
-  // Double_t amin,edm,errdef;
-  // Int_t nvpar,nparx,icstat;
-  // if (debug) {
-  //   gMinuit->mnstat(amin,edm,errdef,nvpar,nparx,icstat);
-  //   gMinuit->mnprin(3,amin); }
-
   // Get fit results
   double slope;
   double slope_err;
@@ -185,14 +176,9 @@ void analysis(
   // Register STK collections
   TClonesArray* stkclusters = new TClonesArray("DmpStkSiCluster");
   t->SetBranchAddress("StkClusterCollection",&stkclusters);
-  //DmpStkEventMetadata* stkMetadata = new DmpStkEventMetadata();
-  //t->SetBranchAddress("DmpStkEventMetadata", &stkMetadata);
+
   TClonesArray* stkladderadc = new TClonesArray("DmpStkLadderAdc");
   t->SetBranchAddress("DmpStkLadderAdcCollection", &stkladderadc);
-
-  // // Register ANCILLARY container
-  // AncillaryEventIons* ancevent = new AncillaryEventIons();
-  // t->SetBranchAddress("AncillaryEventIons",&ancevent);
 
   // Register SCINTILLATOR collections
   TClonesArray* scintillators = new TClonesArray("Scintillator");  
@@ -461,20 +447,20 @@ void analysis(
   int n_good_upsteam_events = 0;
 
   //------------------------------------------- scintillator clusters
-  TH1F *scint_cluster_q[4];
-  for (int i=0; i<4; i++) scint_cluster_q[i] = new TH1F("scint_cluster_q_ch"+TString::Format("%d",i),
+  TH1F *scint_cluster_q[7];
+  for (int i=0; i<7; i++) scint_cluster_q[i] = new TH1F("scint_cluster_q_ch"+TString::Format("%d",i),
   							"scint_cluster_q_ch"+TString::Format("%d",i),
   							600,0,400);
-  TH1F *scint_cluster_pos[4];
-  for (int i=0; i<4; i++) scint_cluster_pos[i] = new TH1F("scint_cluster_pos_ch"+TString::Format("%d",i),
+  TH1F *scint_cluster_pos[7];
+  for (int i=0; i<7; i++) scint_cluster_pos[i] = new TH1F("scint_cluster_pos_ch"+TString::Format("%d",i),
   							  "scint_cluster_pos_ch"+TString::Format("%d",i),
   							  300,0,4000);
-  TH1F *scint_cluster_width[4];
-  for (int i=0; i<4; i++) scint_cluster_width[i] = new TH1F("scint_cluster_width_ch"+TString::Format("%d",i),
+  TH1F *scint_cluster_width[7];
+  for (int i=0; i<7; i++) scint_cluster_width[i] = new TH1F("scint_cluster_width_ch"+TString::Format("%d",i),
   							    "scint_cluster_width_ch"+TString::Format("%d",i),
   							    300,0,600);
-  TH2F *stkmaxq_vs_scint_cluster_q[4];
-  for (int i=0; i<4; i++) stkmaxq_vs_scint_cluster_q[i] = new TH2F("stkmaxq_vs_scint_cluster_q_ch"+TString::Format("%d",i),
+  TH2F *stkmaxq_vs_scint_cluster_q[7];
+  for (int i=0; i<7; i++) stkmaxq_vs_scint_cluster_q[i] = new TH2F("stkmaxq_vs_scint_cluster_q_ch"+TString::Format("%d",i),
   								   "stkmaxq_vs_scint_cluster_q_ch"+TString::Format("%d",i),
   								   300,0,200,600,0,400);
   //-------------------------------------------- tracking plots
@@ -487,12 +473,6 @@ void analysis(
   for(int entry=0; entry<neventstoprocess; entry++){
    
     t->GetEntry(entry);
-
-    // printf("@@@@@@@@@@ Event %d\n", entry);
-    // // STK metadata
-    // printf("STK data mode = %d\n", stkMetadata->fRunMode );
-    // // STK modes: 2 (COMPRESSED), 3(RAW), 5(ULD),  6(DLD)
-    // // ... for more information see: DmpStkEventMetadata.h
 
     double stkcluster_maxehitposition[20];
     double stkcluster_maxe[20];
@@ -517,25 +497,6 @@ void analysis(
       double stkclusterposition = cluster->getLadderCentroid();
       int stkludderid = cluster->getLadderHardware();
 
-      // printf("\nSTK cluster info:\n");
-      // printf("   total ADC counts = %f\n",cluster->getEnergy());
-      // printf("   number of strips = %d\n",cluster->getNstrip());         
-      // printf("   signal in the first strip = %f\n", cluster->GetSignal(0));
-      // printf("   signal in the last  strip = %f\n", cluster->GetSignal(cluster->getNstrip()-1));
-      // printf("   noise  in the first strip = %f\n", cluster->GetNoise(0));
-      // printf("   noise  in the last  strip = %f\n", cluster->GetNoise(cluster->getNstrip()-1));
-      // printf("   center of gravity = %f\n",cluster->getLadderCentroid());
-      // printf("   ladder ID (hardware) = %d\n",cluster->getLadderHardware());
-      //etc.
-      // For more details on STK clusters see DmpStkSiCluster.h
-
-      //------------------------- remove clusters with bad channels
-      int firststripid = cluster->getFirstStrip();
-      for (int i=firststripid; i<firststripid+stkclusternstr; i++) {
-  	//!!!!!!! TO DO !!!!!!!!!!!
-  	// stkludderid
-  	;
-      }
 
       //------------------------- reclculate cluster positions
       // XZ telescope planes
@@ -599,14 +560,6 @@ void analysis(
     if (n_scint_clusters!=2) continue;
     // if (non_trigger_particle) continue;
     
-    printf("nscint %d\n", scintclusters->GetLast()+1);
-    // for(int icl=0; icl<scintclusters->GetLast()+1; icl++)
-    //   {
-    // 	ScintillatorCluster* cluster = (ScintillatorCluster*)scintclusters->ConstructedAt(icl);
-    // 	cout<<cluster->GetScintillatorID()<<endl; 
-    //   }
-
-
     // Loop over reconstructed SCINTILLATOR Clusters
     for (int i=0; i<n_scint_clusters; i++) {
       
@@ -618,12 +571,6 @@ void analysis(
 
       scint_cluster_pos[scintid]->Fill(scintclusterfirstsampleid);
 
-      // for(int j=0; j<scintclustersize; j++){
-      // 	if (cluster->GetSignal(j) > 3954) saturated_signal[scintid] = true; }
-
-      // if (scintclusterfirstsampleid<1240 || scintclusterfirstsampleid>1300) {
-      // 	non_trigger_particle = true;
-      // 	break; }
     }// loop over scintillator clusters
     
 
@@ -663,8 +610,10 @@ void analysis(
 
     //------------------------- fit tracks based on maximum energy clusters
 
+  if (stop==3) return;
 
     //// XZ telescope planes
+  
     // upstream telescope planes
     bool missing_x_hit_3a = false;
     init_data_points(3);
@@ -675,6 +624,7 @@ void analysis(
     if (!missing_x_hit_3a) {
       x_track_fit_results_3a = fit_track();
       chi2_x_track_3a->Fill(log10(x_track_fit_results_3a.at(4)));}
+    
     // downstream telescope planes
     bool missing_x_hit_3b = false;
     init_data_points(3);
@@ -685,6 +635,7 @@ void analysis(
     if (!missing_x_hit_3b) {
       x_track_fit_results_3b = fit_track();
       chi2_x_track_3b->Fill(log10(x_track_fit_results_3b.at(4)));}
+    
     // all telescope planes
     bool missing_x_hit_6 = false;
     init_data_points(6);
@@ -702,7 +653,12 @@ void analysis(
     if (!missing_x_hit_3a && !missing_x_hit_3b) chi2_x_track_3a_vs_3b->Fill(log10(x_track_fit_results_3a.at(4)),log10(x_track_fit_results_3b.at(4)));
     if (!missing_x_hit_3a && !missing_x_hit_6)  chi2_x_track_3a_vs_6 ->Fill(log10(x_track_fit_results_3a.at(4)),log10(x_track_fit_results_6 .at(4)));
     if (!missing_x_hit_3b && !missing_x_hit_6)  chi2_x_track_3b_vs_6 ->Fill(log10(x_track_fit_results_3b.at(4)),log10(x_track_fit_results_6 .at(4)));
+
+
+
+    
     //// YZ telescope planes
+    
     // upstream telescope planes
     bool missing_y_hit_3a = false;
     init_data_points(3);
@@ -713,6 +669,7 @@ void analysis(
     if (!missing_y_hit_3a) {
       y_track_fit_results_3a = fit_track();
       chi2_y_track_3a->Fill(log10(y_track_fit_results_3a.at(4)));}
+    
     // downstream telescope planes
     bool missing_y_hit_3b = false;
     init_data_points(3);
@@ -723,6 +680,7 @@ void analysis(
     if (!missing_y_hit_3b) {
       y_track_fit_results_3b = fit_track();
       chi2_y_track_3b->Fill(log10(y_track_fit_results_3b.at(4)));}
+    
     // all telescope planes
     bool missing_y_hit_6 = false;
     init_data_points(6);
@@ -735,14 +693,21 @@ void analysis(
     vector<double> y_track_fit_results_6;
     if (!missing_y_hit_6) {
       y_track_fit_results_6 = fit_track();
-      chi2_y_track_6->Fill(log10(y_track_fit_results_6.at(4)));}
+      chi2_y_track_6->Fill(log10(y_track_fit_results_6.at(4)));
+    }
+
+    
     // correlations
     if (!missing_y_hit_3a && !missing_y_hit_3b) chi2_y_track_3a_vs_3b->Fill(log10(y_track_fit_results_3a.at(4)),log10(y_track_fit_results_3b.at(4)));
     if (!missing_y_hit_3a && !missing_y_hit_6)  chi2_y_track_3a_vs_6 ->Fill(log10(y_track_fit_results_3a.at(4)),log10(y_track_fit_results_6 .at(4)));
     if (!missing_y_hit_3b && !missing_y_hit_6)  chi2_y_track_3b_vs_6 ->Fill(log10(y_track_fit_results_3b.at(4)),log10(y_track_fit_results_6 .at(4)));
-    
+
+
+  if (stop==4) return;
+
     //-------------------------- track based event selection ----------------//
-    
+
+   
     double max_chi2 = -1.5;
     bool x_track_3ap_found = false;
     if (!missing_x_hit_3a && log10(x_track_fit_results_3a.at(4)) < max_chi2) x_track_3ap_found = true;
@@ -761,52 +726,48 @@ void analysis(
     bool y_upstream_track_is_clean = false;
     //int max_n_cluster = 10;
     double max_logeratio = -0.5;
-    if (//stknclusters[0]<max_n_cluster*2 && 
-  	//stknclusters[2]<max_n_cluster && 
-  	//stknclusters[4]<max_n_cluster &&
-  	log10(secondary_clusters_energy_ratio[0])<max_logeratio+0.2 &&
-  	log10(secondary_clusters_energy_ratio[2])<max_logeratio &&
-  	log10(secondary_clusters_energy_ratio[4])<max_logeratio
-  	) x_upstream_track_is_clean = true;
-    if (//stknclusters[1]<max_n_cluster*2 && 
-  	//stknclusters[3]<max_n_cluster && 
-  	//stknclusters[5]<max_n_cluster &&
-  	log10(secondary_clusters_energy_ratio[1])<max_logeratio+0.2 &&
-  	log10(secondary_clusters_energy_ratio[3])<max_logeratio &&
-  	log10(secondary_clusters_energy_ratio[5])<max_logeratio
-  	) y_upstream_track_is_clean = true;
+    if (
+    	log10(secondary_clusters_energy_ratio[0])<max_logeratio+0.2 &&
+    	log10(secondary_clusters_energy_ratio[2])<max_logeratio &&
+    	log10(secondary_clusters_energy_ratio[4])<max_logeratio
+    	) x_upstream_track_is_clean = true;
+    if (
+    	log10(secondary_clusters_energy_ratio[1])<max_logeratio+0.2 &&
+    	log10(secondary_clusters_energy_ratio[3])<max_logeratio &&
+    	log10(secondary_clusters_energy_ratio[5])<max_logeratio
+    	) y_upstream_track_is_clean = true;
 
     bool good_event = false;
     bool fragmentation = false;
     bool good_upstream_event = false;
 
     if (x_track_3ap_found &&
-  	x_track_3bp_found &&
-  	x_track_6p_found &&
-  	y_track_3ap_found &&
-  	y_track_3bp_found &&
-  	y_track_6p_found &&
-  	x_upstream_track_is_clean &&
-  	y_upstream_track_is_clean
-  	) {
+    	x_track_3bp_found &&
+    	x_track_6p_found &&
+    	y_track_3ap_found &&
+    	y_track_3bp_found &&
+    	y_track_6p_found &&
+    	x_upstream_track_is_clean &&
+    	y_upstream_track_is_clean
+    	) {
       n_good_events++;
       good_event = true; }
 
     if (x_track_3ap_found &&
-  	y_track_3ap_found &&
-  	(!x_track_3bp_found ||
-  	 !y_track_3bp_found) &&
-  	x_upstream_track_is_clean &&
-  	y_upstream_track_is_clean
-  	) {
+    	y_track_3ap_found &&
+    	(!x_track_3bp_found ||
+    	 !y_track_3bp_found) &&
+    	x_upstream_track_is_clean &&
+    	y_upstream_track_is_clean
+    	) {
       n_fragmentation_events++;      
       fragmentation = true; }
   
     if (x_track_3ap_found &&
-  	y_track_3ap_found &&
-  	x_upstream_track_is_clean &&
-  	y_upstream_track_is_clean
-  	) {
+    	y_track_3ap_found &&
+    	x_upstream_track_is_clean &&
+    	y_upstream_track_is_clean
+    	) {
       n_good_upsteam_events++;
       good_upstream_event = true; }
 
@@ -815,17 +776,17 @@ void analysis(
     if (good_event) {
       for (int i=0; i<20; i++) {
       	double slope;
-  	double intersec;
-  	for (int j=0; j<6; j++) {
-  	  if (i == x_plane_id[j] ) {
-  	    slope = x_track_fit_results_6.at(0);
-  	    intersec = x_track_fit_results_6.at(2); }}
-  	for (int j=0; j<14; j++) {
-  	  if (i == y_plane_id[j] ) {
-  	    slope = y_track_fit_results_6.at(0);
-  	    intersec = y_track_fit_results_6.at(2); }}
-  	  track_ladder_pos[i] = slope*stk_clusters_z[i] + intersec; 
-  	cluster_track_residuals_plane[i]->Fill(stkcluster_maxehitposition[i]-track_ladder_pos[i]);
+    	double intersec;
+    	for (int j=0; j<6; j++) {
+    	  if (i == x_plane_id[j] ) {
+    	    slope = x_track_fit_results_6.at(0);
+    	    intersec = x_track_fit_results_6.at(2); }}
+    	for (int j=0; j<14; j++) {
+    	  if (i == y_plane_id[j] ) {
+    	    slope = y_track_fit_results_6.at(0);
+    	    intersec = y_track_fit_results_6.at(2); }}
+    	  track_ladder_pos[i] = slope*stk_clusters_z[i] + intersec; 
+    	cluster_track_residuals_plane[i]->Fill(stkcluster_maxehitposition[i]-track_ladder_pos[i]);
       }
     }
 
@@ -843,22 +804,6 @@ void analysis(
     if (good_event) {
     //if (fragmentation) {
     //{
-      /*
-      // cluster charge in X telescope planes
-      cluster_q_x_track[0]->Fill(sqrt(stkcluster_maxe[0 ])); 
-      cluster_q_x_track[1]->Fill(sqrt(stkcluster_maxe[2 ])); 
-      cluster_q_x_track[2]->Fill(sqrt(stkcluster_maxe[4 ])); 
-      cluster_q_x_track[3]->Fill(sqrt(stkcluster_maxe[14])); 
-      cluster_q_x_track[4]->Fill(sqrt(stkcluster_maxe[16])); 
-      cluster_q_x_track[5]->Fill(sqrt(stkcluster_maxe[18]));
-      // cluster charge in Y telescope planes
-      cluster_q_y_track[0]->Fill(sqrt(stkcluster_maxe[1 ])); 
-      cluster_q_y_track[1]->Fill(sqrt(stkcluster_maxe[3 ])); 
-      cluster_q_y_track[2]->Fill(sqrt(stkcluster_maxe[5 ])); 
-      cluster_q_y_track[3]->Fill(sqrt(stkcluster_maxe[15])); 
-      cluster_q_y_track[4]->Fill(sqrt(stkcluster_maxe[17])); 
-      cluster_q_y_track[5]->Fill(sqrt(stkcluster_maxe[19])); 
-      */
       for (int i=0; i<20; i++){ cluster_q_track[i]->Fill(sqrt(stkcluster_maxe[i])); }
       for (int i=0; i<20; i++){ cluster_adc_track[i]->Fill(stkcluster_maxe[i]); }
 
@@ -877,7 +822,7 @@ void analysis(
 
       //--------- fill secondary clusters histograms
       for (int i=0; i<20; i++){
-  	secondary_clusters_energy_ratio_plane[i]->Fill(log10(secondary_clusters_energy_ratio[i])); }
+    	secondary_clusters_energy_ratio_plane[i]->Fill(log10(secondary_clusters_energy_ratio[i])); }
       
       //-------------------------- draw event display -------------------------//
       if (entry>=firsteventtodisplay && event_display_i<neventstodisplay) {
@@ -970,62 +915,31 @@ void analysis(
 
       // Loop over reconstructed SCINTILLATOR Clusters
       for(int i=0; i<scintclusters->GetLast()+1; i++){
-  	ScintillatorCluster* cluster = (ScintillatorCluster*)scintclusters->ConstructedAt(i);
-  	int scintid = cluster->GetScintillatorID();                   // 0 - wave0,  1 - wave1,  2 - wave2,  3 - wave3
-  	int scintclustersize = cluster->GetSize();                    // Number of samples in the cluster
-  	int scintclusterenergy = cluster->GetSignalTotal();           // Total energy of the cluster
-  	int scintclusterfirstsampleid = cluster->GetPosition(0);
+    	ScintillatorCluster* cluster = (ScintillatorCluster*)scintclusters->ConstructedAt(i);
+    	int scintid = cluster->GetScintillatorID();                   // 0 - wave0,  1 - wave1,  2 - wave2,  3 - wave3
+    	int scintclustersize = cluster->GetSize();                    // Number of samples in the cluster
+    	int scintclusterenergy = cluster->GetSignalTotal();           // Total energy of the cluster
+    	int scintclusterfirstsampleid = cluster->GetPosition(0);
 
-  	// //printf("scint.cluster %d: wave%d size=%d energy=%d firstsampleid=%d\n",i,scintid,scintclustersize,scintclusterenergy,scintclusterfirstsampleid);
-  	// for(int j=0; j<scintclustersize; j++){
-  	//   //cluster->GetPosition(j);                     // position of j-th sample in the cluster; 
-  	//   //   there are 4000 samples per event (may be more, depending on the run)
-  	//   //   so, for example, given the cluster starts at 100-th sample and lasts for 20 
-  	//   //   samples. the positions will be 100,101, 102,...119
+    	// //printf("scint.cluster %d: wave%d size=%d energy=%d firstsampleid=%d\n",i,scintid,scintclustersize,scintclusterenergy,scintclusterfirstsampleid);
+    	// for(int j=0; j<scintclustersize; j++){
+    	//   //cluster->GetPosition(j);                     // position of j-th sample in the cluster; 
+    	//   //   there are 4000 samples per event (may be more, depending on the run)
+    	//   //   so, for example, given the cluster starts at 100-th sample and lasts for 20 
+    	//   //   samples. the positions will be 100,101, 102,...119
 	
-  	//   // signal of j-th sample in the cluster (pedestal is subtracted)
-  	//   if (cluster->GetSignal(j) > 3954) suturated_signal[scintid] = true;
-  	// }
+    	//   // signal of j-th sample in the cluster (pedestal is subtracted)
+    	//   if (cluster->GetSignal(j) > 3954) suturated_signal[scintid] = true;
+    	// }
 
 
-  	scint_cluster_q[scintid]->Fill(sqrt(scintclusterenergy));
-  	scint_cluster_width[scintid]->Fill(scintclustersize);
-  	stkmaxq_vs_scint_cluster_q[scintid]->Fill(sqrt(stkcluster_maxe[0]),sqrt(scintclusterenergy));
+    	scint_cluster_q[scintid]->Fill(sqrt(scintclusterenergy));
+    	scint_cluster_width[scintid]->Fill(scintclustersize);
+    	stkmaxq_vs_scint_cluster_q[scintid]->Fill(sqrt(stkcluster_maxe[0]),sqrt(scintclusterenergy));
 
       }// loop over scintillator clusters
-      //  For each wave, clusters are sorted in time, the first one in the collection comes first in the event
-      //  There are 2 scintillators, for each of them you have amplified and non-amplified signals:
-      //         wave0  (cluster->GetScintillatorID()==0)   is a non-amplified signal of first scintillator
-      //         wave1  (cluster->GetScintillatorID()==1)   is an amplified signal of first scintillator
-      //         wave2  (cluster->GetScintillatorID()==2)   is a non-amplified signal of second scintillator
-      //         wave3  (cluster->GetScintillatorID()==3)   is an amplified signal of second scintillator
-      //       
-      //  scintillator class is defined here: http://dpnc.unige.ch/SVNDAMPE/DAMPE/DmpSoftware/DmpSoftware-4-5-4/Event/Ams/include/ScintillatorCluster.h      
 
     }// cuts based on track fitting
-
-
-    // // Loop over STK adc 
-    // for(int i=0; i<stkladderadc->GetLast()+1; i++){
-    //   DmpStkLadderAdc* laddderadc = (DmpStkLadderAdc*)stkladderadc->ConstructedAt(i);
-    //   int ladderid = laddderadc->GetLadderID();
-    //   for(int j=0; j<384; j++){
-    // 	double adc = laddderadc->GetChannelAdc(j);
-    //   }
-    // }
-  
-    //   // Ancillary detector
-    //   printf("\nAnclillary detector information:\n");
-    //   printf("   ADC s1 low gain   = %f\n",ancevent->s1_6db);
-    //   printf("   ADC s1 high gain (x10)  = %f\n",ancevent->s1_12db);
-    //   printf("   ADC s2 low gain  = %f\n",ancevent->s2_6db);
-    //   printf("   ADC s2 high gain (x10) = %f\n",ancevent->s2_12db);
-    //   printf("   ADC si0 low gain = %f\n",ancevent->si0_sg);
-    //   printf("   ADC si0 high gain (x10) = %f\n",ancevent->si0_lg);
-    //   printf("   ADC si1 low gain = %f\n",ancevent->si1_sg);
-    //   printf("   ADC si1 high gain () = %f\n",ancevent->si1_lg);
-    //   // etc.
-    //   // For more information see http://dpnc.unige.ch/SVNDAMPE/DAMPE/DmpSoftware/DmpSoftware-4-5-4/Event/Ams/include/AncillaryEventIons.hh
   
   }
   // END OF EVENT LOOP
@@ -1090,17 +1004,6 @@ void analysis(
   chi2_corr_tracks_canv->SaveAs(TString::Format("plots/run%d/chi2_corr_tracks",(int)ion_mean_pos[run_id*16])+"_canv.png");
 
   //---------------------------------- plot cluster charges
-  /*
-  TCanvas *cluster_q_x_track_canv = new TCanvas("cluster_q_x_track_canv","cluster_q_x_track_canv",1800,1000);
-  cluster_q_x_track_canv->Divide(3,2);
-  for (int i=0; i<6; i++) {cluster_q_x_track_canv->cd(i+1); cluster_q_x_track[i]->Draw();}
-  cluster_q_x_track_canv->SaveAs(TString::Format("plots/run%d/cluster_q_x_track",(int)ion_mean_pos[run_id*16])+"_canv.png");
-
-  TCanvas *cluster_q_y_track_canv = new TCanvas("cluster_q_y_track_canv","cluster_q_y_track_canv",1800,1000);
-  cluster_q_y_track_canv->Divide(3,2);
-  for (int i=0; i<6; i++) {cluster_q_y_track_canv->cd(i+1); cluster_q_y_track[i]->Draw();}
-  cluster_q_y_track_canv->SaveAs(TString::Format("plots/run%d/cluster_q_y_track",(int)ion_mean_pos[run_id*16])+"_canv.png");
-  */
   TCanvas *cluster_q_x_telescope_plane_canv = new TCanvas("cluster_q_x_telescope_plane_canv","cluster_q_x_telescope_plane_canv",1800,1000);
   cluster_q_x_telescope_plane_canv->Divide(3,2);
   for (int i=0; i<6; i++) {
@@ -1306,23 +1209,23 @@ void analysis(
   // scint_cluster_q_canv->SaveAs(TString::Format("plots/run%d/scint_cluster_q",(int)ion_mean_pos[run_id*16])+"_canv.png");
 
   TCanvas *scint_cluster_pos_canv = new TCanvas("scint_cluster_pos_canv","scint_cluster_pos_canv",1800,1000);
-  scint_cluster_pos_canv->Divide(2,2);
-  for (int i=0; i<4; i++){
+  scint_cluster_pos_canv->Divide(4,2);
+  for (int i=0; i<7; i++){
     scint_cluster_pos_canv->cd(i+1);
     scint_cluster_pos_canv->cd(i+1)->SetLogy();
     scint_cluster_pos[i]->Draw(); }  
   scint_cluster_pos_canv->SaveAs(TString::Format("plots/run%d/scint_cluster_pos",(int)ion_mean_pos[run_id*16])+"_canv.png");
 
   TCanvas *scint_cluster_width_canv = new TCanvas("scint_cluster_width_canv","scint_cluster_width_canv",1800,1000);
-  scint_cluster_width_canv->Divide(2,2);
-  for (int i=0; i<4; i++){
+  scint_cluster_width_canv->Divide(4,2);
+  for (int i=0; i<7; i++){
     scint_cluster_width_canv->cd(i+1);
     scint_cluster_width[i]->Draw(); }  
   scint_cluster_width_canv->SaveAs(TString::Format("plots/run%d/scint_cluster_width",(int)ion_mean_pos[run_id*16])+"_canv.png");
 
   TCanvas *stkmaxq_vs_scint_cluster_q_canv = new TCanvas("stkmaxq_vs_scint_cluster_q_canv","stkmaxq_vs_scint_cluster_q_canv",1800,1000);
-  stkmaxq_vs_scint_cluster_q_canv->Divide(2,2);
-  for (int i=0; i<4; i++){
+  stkmaxq_vs_scint_cluster_q_canv->Divide(4,2);
+  for (int i=0; i<7; i++){
     stkmaxq_vs_scint_cluster_q_canv->cd(i+1);
     stkmaxq_vs_scint_cluster_q_canv->cd(i+1)->SetLogz();
     if (i==0 || i==2) stkmaxq_vs_scint_cluster_q[i]->GetYaxis()->SetRangeUser(0,200);
@@ -1359,15 +1262,9 @@ void analysis(
 
   //----------------------------------- statistics
   printf("\n[0] neventstoprocess: %d\n",neventstoprocess);
-  printf("[1] n_single_particle_trigger_events: %d\n",n_single_particle_trigger_events);
-  printf("[2] n_good_upsteam_events: %d\n",n_good_upsteam_events);
-  printf("[3] n_good_events: %d\n",n_good_events);
-  printf("[4] n_fragmentation_events: %d\n",n_fragmentation_events);
-  printf("[1]/[0]: %.4f\n",n_single_particle_trigger_events/(double)neventstoprocess);
-  printf("[2]/[1]: %.4f\n",n_good_upsteam_events/(double)n_single_particle_trigger_events);
-  printf("[3]/[2]: %.4f\n",n_good_events/(double)n_good_upsteam_events);
-  printf("[4]/[2]: %.4f\n",n_fragmentation_events/(double)n_good_upsteam_events);
-  //printf(": %d\n",);
+  printf("[1] n_good_upsteam_events: %d\n",n_good_upsteam_events);
+  printf("[2] n_good_events: %d\n",n_good_events);
+  printf("[3] n_fragmentation_events: %d\n",n_fragmentation_events);
   printf("\n");
 
   //------------------------------------------ END of the program -------------------------------//
