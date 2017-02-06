@@ -65,19 +65,26 @@ using namespace std;
 
 
 #define NLadders 20
-#define NScint 8
 
 //GitHub test 2//
 
-void STK_test(char filename[200], char runnumber[200]){
+void STK_test(char filename[200], int runnumber){
 
   gSystem->Load("DmpSoftware/trunk/Event/libDmpEvent.so");
 
-  char prefix[100]="Results/out_";
-  char suffix[100]=".root";
+ TString term_cmd = "mkdir -pv "+TString::Format("plots/run%d",(int)runnumber);
+ system(term_cmd.Data());
+ TString term_cmd2 = "mkdir -pv "+TString::Format("Results/run%d",(int)runnumber);
+ system(term_cmd2.Data());
+ 
+ TString run_string = TString::Format("%04d",(int)runnumber);
+ TString plotdirectory = TString::Format("plots/run%d",(int)runnumber);
+ TString outfile = TString::Format("Results/run%d",(int)runnumber)+"/out_"+run_string+".root";
+
+  
   
   TFile* f = new TFile(filename,"READ");
-  TFile* out = new TFile(strcat(strcat(prefix,runnumber),suffix), "recreate");
+  TFile* out = new TFile(outfile, "recreate");
   
   TTree* t =(TTree*)f->Get("CollectionTree");
   cout << endl;
@@ -196,16 +203,6 @@ hEnergyCluster[iladder] = new TH1D(Form("hEnergyCluster_iladder_%d",ladderID[ila
    h2test[iladder]->GetYaxis()->SetTitle("ADC");
  }//close i for
 
- //scint test 
-  TH1D *hScint[NScint];
- for(int i=0; i<NScint; i++){
-   hScint[i] = new TH1D(Form("hScint_%d",i), Form("Energy scint %d",i),50,0,1500);
-   hScint[i]->GetXaxis()->SetTitle("ADC");
- }//close for
- 
-
-
-
  // EVENT LOOP //
 
  cout << "Processing percentage: " << "00" << "% \n";
@@ -240,10 +237,9 @@ hEnergyCluster[iladder] = new TH1D(Form("hEnergyCluster_iladder_%d",ladderID[ila
      }
    }
 
-
-   //  for(int iladder = 0; iladder < NLadders; iladder++){
-   //   hNclusters[iladder]->Fill(Nclust[iladder]);
-   // }
+    for(int iladder = 0; iladder < NLadders; iladder++){
+     hNclusters[iladder]->Fill(Nclust[iladder]);
+   }
    
 
         // for(int iladder = 0; iladder < NLadders; iladder++){
@@ -251,19 +247,19 @@ hEnergyCluster[iladder] = new TH1D(Form("hEnergyCluster_iladder_%d",ladderID[ila
 	// }
 
 
-   //number of cluster selection
-   bool go=1;
-   int i=0;
-     while(i < NLadders && go==1 ){
-       if(Nclust[i]!=3) go=0;
-       i=i+1;
-     }
+   // //number of cluster selection
+   // bool go=1;
+   // int i=0;
+   //   while(i < NLadders && go==1 ){
+   //     if(Nclust[i]!=3) go=0;
+   //     i=i+1;
+   //   }
 
-     if(go==0) continue;
+   //   if(go==0) continue;
      
-     for(int iladder = 0; iladder < NLadders; iladder++){
-       hNclusters[iladder]->Fill(Nclust[iladder]);
-     }
+   //   for(int iladder = 0; iladder < NLadders; iladder++){
+   //     hNclusters[iladder]->Fill(Nclust[iladder]);
+   //   }
 
      /////
 	  
@@ -338,145 +334,125 @@ hEnergyCluster[iladder] = new TH1D(Form("hEnergyCluster_iladder_%d",ladderID[ila
      }
    }//close cluster loop
 
-   //Loop over SCINTILLATORS
-   cout <<"Scintillators number" << scintillators->GetLast()+1 << endl;
-   for(int iscint=0; iscint<scintillators->GetLast()+1; iscint++){
-         ScintillatorCluster* scintillator = (ScintillatorCluster*)scintillators->ConstructedAt(iscint);
-         for(int j=0; j<scintillator->GetSize(); j++){
-   	   if(scintillator->GetSignal(j)>0){
-   	   hScint[iscint]->Fill(scintillator->GetSignal(j));
-   	   }
-   	 }
-      }
-    
     if (ientry == int(NEvents-1)) cout << "Processing percentage: " << "100" << "% \n";
   
  }//close event loop
  
- // TCanvas *c = new TCanvas("c", "Cluster Energy", 1920,1080);
- // // gStyle->SetOptStat(0);
- // c->Divide(2,1);
- // for(int i=0; i< NLadders;i++){
- //   c->cd(i+1);
- //   hEnergyCluster[i]->SetLineColor(kRed);
- //   hEnergyCluster[i]->SetLineWidth(2);
- //   hEnergyCluster[i]->Draw();
+ TCanvas *c = new TCanvas("c", "Cluster Energy", 1920,1080);
+ // gStyle->SetOptStat(0);
+ c->Divide(5,4);
+ for(int i=0; i< NLadders;i++){
+   c->cd(i+1);
+   hEnergyCluster[i]->SetLineColor(kRed);
+   hEnergyCluster[i]->SetLineWidth(2);
+   hEnergyCluster[i]->Draw();
    
- //   hEnergyOneStrip[i]->SetLineColor(kBlue);
- //   hEnergyOneStrip[i]->Draw("SAME");
+   hEnergyOneStrip[i]->SetLineColor(kBlue);
+   hEnergyOneStrip[i]->Draw("SAME");
    
- //   hEnergyTwoStrip[i]->SetLineColor(kGreen);
- //   hEnergyTwoStrip[i]->Draw("SAME");
+   hEnergyTwoStrip[i]->SetLineColor(kGreen);
+   hEnergyTwoStrip[i]->Draw("SAME");
 
 
- //   hEnergyThreeStrip[i]->SetLineColor(kBlack);
- //   hEnergyThreeStrip[i]->Draw("SAME");
+   hEnergyThreeStrip[i]->SetLineColor(kBlack);
+   hEnergyThreeStrip[i]->Draw("SAME");
 
- //   gPad->BuildLegend();
+   gPad->BuildLegend();
 
- //  hEnergyCluster[i]->Write();
- //  hEnergyOneStrip[i]->Write();
- //  hEnergyTwoStrip[i]->Write();
- //  hEnergyThreeStrip[i]->Write();
- // }//close for
- // c->SaveAs("Results/henclust.pdf");
- 
- // TCanvas *c1 = new TCanvas("c1", "# strips ", 1920,1080);
- // c1->Divide(2,1);
- // for(int i=0; i< NLadders;i++){
- //   c1->cd(i+1);
- //   hNstrips[i]->Draw();
- //   hNstrips[i]->Write();
- // }
- // c1->SaveAs("Results/n strips.pdf");
- 
- // TCanvas *c2 = new TCanvas("c2", "Occupancy ", 1920,1080);
- // c2->Divide(2,1);
- // for(int i=0; i< NLadders;i++){
- //   c2->cd(i+1);
- //   occupancy[i]->Draw();
- //   occupancy[i]->Write();
- // }//close for
- // c2->SaveAs("Results/occupancy.pdf");
-   
- //  TCanvas *c3 = new TCanvas("c3", "2d test ", 1920,1080);
- // c3->Divide(2,1);
- // for(int i=0; i< NLadders;i++){
- //   c3->cd(i+1);
- //   gPad->SetLogz();
- //   h2test[i]->Draw("colz");
- //   if(ladderID[i]==126){
- //   h2test[i]->GetXaxis()->SetRange(0,78);
- //   }
- //   h2test[i]->Write();
- // }//close for
- // c3->SaveAs("Results/2dTest.pdf");
-
-  TCanvas *c4 = new TCanvas("c4", "scint test ", 1920,1080);
-  c4->Divide(4,2);
- for(int i=0; i<NScint;i++){
-   c4->cd(i+1);
-   gPad->SetLogy();
-   hScint[i]->Draw();
-   hScint[i]->Write();
+  hEnergyCluster[i]->Write();
+  hEnergyOneStrip[i]->Write();
+  hEnergyTwoStrip[i]->Write();
+  hEnergyThreeStrip[i]->Write();
  }//close for
- c4->SaveAs("Results/scint.pdf");
+ c->SaveAs(plotdirectory+"/henclust_"+run_string+".png");
  
- // TCanvas *c5 = new TCanvas("c5", "Main Strip Energy",1920,1080);
- // c5->Divide(2,1);
- // for(int i=0; i<NLadders;i++){
- //   c5->cd(i+1);
- //  hEnergyMainStrip[i]->Draw();
- //  hEnergyMainStrip[i]->Write();
- // }//close for 
- // c5->SaveAs("Results/mainstrip.pdf");
- 
- // TCanvas *c6 = new TCanvas("c6", "Other Strip Energy", 1920,1080);
- // c6->Divide(2,1);
- // for(int i=0; i<NLadders;i++){
- //   c6->cd(i+1);
- //  hEnergyOtherStrip[i]->Draw();
- //  hEnergyOtherStrip[i]->Write();
- // }//close for
- // c6->SaveAs("Results/otherstrip.pdf");
- 
- // TCanvas *c7 = new TCanvas("c7", "Eta function", 1920,1080);
- // c7->Divide(2,1);
- // for(int i=0; i<NLadders;i++){
- //   c7->cd(i+1);
- //  hEta[i]->Draw();
- //  hEta[i]->Write();
- // }//close for
- // c7->SaveAs("Results/eta.pdf");
- 
- //  TCanvas *c8 = new TCanvas("c8", "Eta 2D Test", 1920,1080);
- // c8->Divide(2,1);
- // for(int i=0; i< NLadders;i++){
- //   c8->cd(i+1);
- //   gPad->SetLogz();
- //   hEta2D[i]->Draw("colz");
- //   hEta2D[i]->Write();
- // }//close for
- // c8->SaveAs("Results/eta2d.pdf");
- 
- // TCanvas *c8b= new TCanvas("c8b", "Eta 2D Test Profile", 1920,1080);
- // c8b->Divide(2,1);
- // for(int i=0; i< NLadders;i++){
- //   c8b->cd(i+1);
- //   gPad->SetLogz();
- //   TProfile *prof = hEta2D[i]->ProfileX();
- //   prof->Draw(); 
- // }//close for
- // c8b->SaveAs("Results/etaprofile.pdf");
- 
- 
- // TCanvas *c9 = new TCanvas("c9", "# clusters ",1920 ,1080);
- // c9->Divide(2,1);
- // for(int i=0; i< NLadders;i++){
- //   c9->cd(i+1);
- //   hNclusters[i]->Draw();
- //   hNclusters[i]->Write();
- // }
- // c9->SaveAs("Results/n clusters.pdf");
+ TCanvas *c1 = new TCanvas("c1", "# strips ", 1920,1080);
+ c1->Divide(5,4);
+ for(int i=0; i< NLadders;i++){
+   c1->cd(i+1);
+   hNstrips[i]->Draw();
+   hNstrips[i]->Write();
+ }
+ c1->SaveAs(plotdirectory+"/n_strips_"+run_string+".png");
 
+ TCanvas *c2 = new TCanvas("c2", "Occupancy ", 1920,1080);
+ c2->Divide(5,4);
+ for(int i=0; i< NLadders;i++){
+   c2->cd(i+1);
+   occupancy[i]->Draw();
+   occupancy[i]->Write();
+ }//close for
+ c2->SaveAs(plotdirectory+"/occupancy_"+run_string+".png");
+  
+  TCanvas *c3 = new TCanvas("c3", "2d test ", 1920,1080);
+ c3->Divide(5,4);
+ for(int i=0; i< NLadders;i++){
+   c3->cd(i+1);
+   gPad->SetLogz();
+   h2test[i]->Draw("colz");
+   if(ladderID[i]==126){
+   h2test[i]->GetXaxis()->SetRange(0,78);
+   }
+   h2test[i]->Write();
+ }//close for
+ c3->SaveAs(plotdirectory+"/2dTest_"+run_string+".png");
+
+ 
+ TCanvas *c5 = new TCanvas("c5", "Main Strip Energy",1920,1080);
+ c5->Divide(5,4);
+ for(int i=0; i<NLadders;i++){
+   c5->cd(i+1);
+   hEnergyMainStrip[i]->Draw();
+   hEnergyMainStrip[i]->Write();
+ }//close for 
+ c5->SaveAs(plotdirectory+"/mainstrip_"+run_string+".png");
+  
+ TCanvas *c6 = new TCanvas("c6", "Other Strip Energy", 1920,1080);
+ c6->Divide(5,4);
+ for(int i=0; i<NLadders;i++){
+   c6->cd(i+1);
+   hEnergyOtherStrip[i]->Draw();
+   hEnergyOtherStrip[i]->Write();
+ }//close for
+ c6->SaveAs(plotdirectory+"/otherstrip_"+run_string+".png");
+
+ TCanvas *c7 = new TCanvas("c7", "Eta function", 1920,1080);
+ c7->Divide(5,4);
+ for(int i=0; i<NLadders;i++){
+   c7->cd(i+1);
+   hEta[i]->Draw();
+   hEta[i]->Write();
+ }//close for
+ c7->SaveAs(plotdirectory+"/eta_"+run_string+".png");
+
+  TCanvas *c8 = new TCanvas("c8", "Eta 2D Test", 1920,1080);
+ c8->Divide(5,4);
+ for(int i=0; i< NLadders;i++){
+   c8->cd(i+1);
+   gPad->SetLogz();
+   hEta2D[i]->Draw("colz");
+   hEta2D[i]->Write();
+ }//close for
+ c8->SaveAs(plotdirectory+"/eta2d_"+run_string+".png");
+
+ TCanvas *c8b= new TCanvas("c8b", "Eta 2D Test Profile", 1920,1080);
+ c8b->Divide(5,4);
+ for(int i=0; i< NLadders;i++){
+   c8b->cd(i+1);
+   gPad->SetLogz();
+   TProfile *prof = hEta2D[i]->ProfileX();
+   prof->Draw(); 
+   prof->Write();
+ }//close for
+ c8b->SaveAs(plotdirectory+"/eta_profile_"+run_string+".png");
+
+ 
+ TCanvas *c9 = new TCanvas("c9", "# clusters ",1920 ,1080);
+ c9->Divide(5,4);
+ for(int i=0; i< NLadders;i++){
+   c9->cd(i+1);
+   hNclusters[i]->Draw();
+   hNclusters[i]->Write();
+ }
+ c9->SaveAs(plotdirectory+"/n_clusters_"+run_string+".png");
 }//close macro

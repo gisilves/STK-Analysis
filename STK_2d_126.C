@@ -38,7 +38,8 @@ void STK_2d(char filename[200], int runnumber){
  
  TString term_cmd2 = "mkdir -pv "+TString::Format("Results/run%d",(int)runnumber);
  system(term_cmd2.Data());
- 
+
+ TString plotdirectory = TString::Format("Results/run%d",(int)runnumber);
  TString run_string = TString::Format("%04d",(int)runnumber);
 
  TString outfile = "Results/out_2d_"+run_string+".root";
