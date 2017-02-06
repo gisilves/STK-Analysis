@@ -29,14 +29,24 @@
 
 bool isBad(int arr[], int size, int value);
 
-void STK_2d(char filename[200], char runnumber[200]){
+void STK_2d(char filename[200], int runnumber){
   gSystem->Load("DmpSoftware/trunk/Event/libDmpEvent.so");
 
-  char prefix[100]="Results/out_2d_";
-  char suffix[100]=".root";
+  
+ TString term_cmd = "mkdir -pv "+TString::Format("plots/run%d",(int)runnumber);
+ system(term_cmd.Data());
+ 
+ TString term_cmd2 = "mkdir -pv "+TString::Format("Results/run%d",(int)runnumber);
+ system(term_cmd2.Data());
+ 
+ TString run_string = TString::Format("%04d",(int)runnumber);
+
+ TString outfile = "Results/out_2d_"+run_string+".root";
+  
   
   TFile* f = new TFile(filename,"READ");
-  TFile* out = new TFile(strcat(strcat(prefix,runnumber),suffix), "recreate");
+  TFile* out = new TFile(outfile, "recreate");
+
   
   TTree* t =(TTree*)f->Get("CollectionTree");
   cout << endl;

@@ -48,48 +48,9 @@ using namespace std;
 
 bool debug = false;
 
-int run_id = 43;
+int run_id = 0;
 TString ion_name[16]	 = {	"run"	,"H"	,"He"	,"Li"	,"Be"	,"B"	,"C"	,"N"	,"O"	,"F"	,"Ne"	,"Na"	,"Mg"	,"Al"	,"Si"	,"P"    }; // run_id
-double ion_mean_pos[656] = {	00	,75.4	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1     ,  // 0
-       			   	48	,-1	,44.3	,-1	,84.95	,104.37	,122.06	,138.33	,153.54	,167.11	,178	,-1	,-1	,-1	,-1	,-1     ,  // 1
-				50	,-1	,18.99	,26.2	,35.7	,44.82	,52.58	,59.6	,66.12	,71.8	,78.56	,83.5	,-1	,-1	,-1	,-1     ,  // 2 
-				52	,-1	,19.41	,28.6	,36.6	,45.2	,53.07	,60.29	,67	,73.07	,78.48	,-1	,-1	,-1	,-1	,-1     ,  // 3 
-				53	,-1	,-1	,-1	,36.7	,45.38	,53.23	,60.44	,67.6	,-1	,-1	,-1	,-1	,-1	,-1	,-1     ,  // 4 
-				55	,-1	,19.8	,27.22	,36.7	,45.45	,53.39	,60.58	,67.74	,73.85	,79.75	,-1	,-1	,-1	,-1	,-1     ,  // 5 
-				59	,-1	,19.24	,27.6	,36.8	,45.41	,53.26	,60.39	,67.9	,-1	,-1	,-1	,-1	,-1	,-1	,-1     ,  // 6 
-				61	,-1	,-1	,-1	,36.93	,45.79	,53.64	,61.09	,67.62	,72.8	,-1	,-1	,-1	,-1	,-1	,-1     ,  // 7 
-				71	,-1	,-1	,-1	,-1	,71.9	,86.6	,97.3	,107.28	,116.5	,123.57	,131.41	,-1	,-1	,-1	,-1     ,  // 8
-				72	,-1	,-1	,-1	,60.6	,74.26	,86.11	,97.21	,107.11	,114.23	,125.32	,-1	,-1	,-1	,-1	,-1     ,  // 9
-				74	,-1	,-1	,-1	,38.79	,47.44	,55.53	,63.05	,69.88	,76.13	,82.31	,87.8	,92.9	,97.98	,102.52	,106.22	,  // 10
-				77	,-1	,-1	,28.3	,38.7	,47.77	,55.94	,63.43	,70.5	,76.69	,83.09	,88.5	,93.68	,98.38	,103.29	,109.94	,  // 11
-				81	,-1	,-1	,-1	,38.1	,48.21	,56.47	,63.97	,70.91	,77.5	,83.43	,88.96	,94.28	,98.7	,-1	,-1     ,  // 12
-				85	,-1	,-1	,-1	,37.6	,48.05	,56.06	,63.82	,70.86	,77.13	,83.56	,88.8	,94.42	,99.65	,104.11	,-1     ,  // 13
-				86	,-1	,-1	,28	,39.21	,47.84	,56.03	,63.59	,70.59	,76.78	,83.01	,88.5	,93.78	,98.37	,-1	,-1     ,  // 14
-				87	,-1	,-1	,-1	,39.2	,48.97	,56.2	,63.46	,70.45	,76.62	,82.77	,88.28	,93.45	,98.46	,102.96	,-1     ,  // 15
-				89	,-1	,-1	,-1	,39	,47.89	,56	,63.38	,70.24	,76.76	,82.79	,88.5	,93.52	,98.34	,102.95	,107.25	,  // 16
-				90	,-1	,-1	,-1	,-1	,-1	,54.3	,63.3	,70.79	,76.93	,83.2	,88.5	,94.2	,98.8	,103.35	,-1     ,  // 17
-				91	,-1	,-1	,-1	,-1	,-1	,-1	,62.7	,71.08	,77.5	,83.52	,89.07	,94.36	,99.5	,103.76	,107.85	,  // 18
-				93	,-1	,-1	,-1	,-1	,-1	,-1	,64.3	,71.49	,77.68	,83.94	,89.5	,94.88	,99.8	,104.23	,-1     ,  // 19
-				96      ,-1     ,-1     ,-1     ,-1     ,-1     ,-1     ,65.6   ,72.79  ,79.24  ,85.45  ,91.2   ,96.51  ,101.74 ,105.97 ,-1     ,  // 20
-				97      ,-1     ,-1     ,-1     ,-1     ,-1     ,-1     ,64.7   ,72.73  ,79.02  ,85.6   ,91.1   ,96.33  ,101.47 ,105.92 ,-1     ,  // 21
-				100     ,-1     ,-1     ,-1     ,-1     ,-1     ,-1     ,64.6   ,71.7   ,78.13  ,84.44  ,89.8   ,95.08  ,100.5  ,104.96 ,-1     ,  // 22
-				101     ,-1     ,-1     ,-1     ,-1     ,-1     ,-1     ,64     ,71.84  ,78.5   ,83.96  ,89.5   ,96.84  ,-1     ,104.82 ,-1     ,  // 23
-				106     ,-1     ,-1     ,-1     ,-1     ,-1     ,-1     ,64.3   ,71.67  ,78.03  ,84.26  ,89.94  ,95.09  ,99.93  ,104.75 ,109.29 ,  // 24
-				107     ,-1     ,-1     ,-1     ,39.55  ,48.5   ,56.9   ,64.46  ,71.58  ,78.24  ,83.9   ,88.8   ,94.74  ,99.8   ,104.4  ,109.04 ,  // 25
-				109     ,-1     ,-1     ,-1     ,39.6   ,48.71  ,57.02  ,64.69  ,71.71  ,78.1   ,84.44  ,90.01  ,95.25  ,99.8   ,104.79 ,109.22 ,  // 26
-				111     ,-1     ,-1     ,-1     ,39.6   ,49.2   ,57.68  ,65.35  ,72.58  ,79.2   ,85.54  ,91.5   ,96.5   ,101.5  ,105.86 ,-1     ,  // 27
-				115     ,-1     ,-1     ,-1     ,-1     ,-1     ,56.59  ,65.3   ,73.13  ,79.16  ,85.72  ,91.34  ,96.82  ,101.79 ,106.44 ,109.63 ,  // 28
-				117     ,-1     ,-1     ,-1     ,-1     ,-1     ,59.2   ,66.22  ,73.18  ,79.67  ,86.2   ,91.5   ,97.2   ,102.32 ,106.96 ,-1     ,  // 29
-				118     ,-1     ,-1     ,-1     ,40.61  ,49.63  ,58.21  ,66.08  ,73.15  ,79.8   ,86.19  ,91.74  ,97.3   ,101.99 ,106.93 ,-1     ,  // 30
-				120     ,-1     ,-1     ,-1     ,40     ,49.84  ,58.32  ,66.17  ,73.49  ,80.13  ,86.29  ,92.12  ,97.5   ,101.8  ,105.8  ,-1     ,  // 31
-				121     ,-1     ,-1     ,-1     ,-1     ,-1     ,59.5   ,66.59  ,73.83  ,80.4   ,86.58  ,92.37  ,96.8   ,99.8   ,106.83 ,-1     ,  // 32
-				128     ,-1     ,-1     ,-1     ,-1     ,-1     ,58.6   ,67.07  ,74.21  ,80.69  ,87.2   ,92.79  ,98.34  ,103.5  ,108.07 ,-1     ,  // 33
-				139     ,-1     ,-1     ,-1     ,-1     ,-1     ,55.8   ,64.7   ,72.23  ,78.66  ,84.8   ,90.49  ,95.87  ,100.66 ,105.25 ,-1     ,  // 34
-				141     ,-1     ,-1     ,30.6   ,39.83  ,48.8   ,57.22  ,64.93  ,72.03  ,78.49  ,84.79  ,90.23  ,95.68  ,100.8  ,105.33 ,109.58 ,  // 35
-				143     ,-1     ,-1     ,29.3   ,39     ,49.05  ,57.47  ,65.31  ,72.4   ,78.98  ,85.05  ,90.5   ,96.2   ,101.03 ,106.62 ,109.5  ,  // 36
-				145     ,-1     ,-1     ,-1     ,-1     ,-1     ,57.9   ,65.6   ,72.5   ,79.2   ,85.2   ,91.16  ,96.39  ,101.37 ,106.01 ,110.24 ,  // 37
-				148     ,-1     ,-1     ,-1     ,40.47  ,49.48  ,57.88  ,65.67  ,72.84  ,79.23  ,85.84  ,91.29  ,96.81  ,102.18 ,106.67 ,111.53 ,  // 38
-				149     ,-1     ,-1     ,-1     ,41.04  ,49.59  ,58.04  ,65.69  ,72.88  ,79.5   ,85.9   ,91.47  ,97.08  ,102.37 ,107.06 ,-1     ,  // 49
+double ion_mean_pos[656] = {	00	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1	,-1     ,  // 0
 				155     ,-1     ,20.89  ,29.97  ,40.4   ,49.78  ,58.63  ,66     ,73.48  ,79.76  ,86.51  ,92.2   ,97.55  ,103.27 ,107.83 ,111.91 }; // 40
 
 //---------------------------------------- track fitting -------------------------------------//
@@ -198,7 +159,7 @@ void analysis(
 	      int firsteventtodisplay = 0,
 	      int neventstodisplay = 30,
 	      int stop = 0,
-	      bool dbg = true
+	      bool dbg = false
 	      )
 {  
   TString run_id_str = TString::Format("%04d",(int)ion_mean_pos[run_id*16]);
@@ -635,12 +596,15 @@ void analysis(
     bool non_trigger_particle = false;
     double scint_cluster_charge[4];
     bool saturated_signal[4] = {false,false,false,false};
+    if (n_scint_clusters!=2) continue;
+    // if (non_trigger_particle) continue;
+    
     printf("nscint %d\n", scintclusters->GetLast()+1);
-    for(int icl=0; icl<scintclusters->GetLast()+1; icl++)
-      {
-	ScintillatorCluster* cluster = (ScintillatorCluster*)scintclusters->ConstructedAt(icl);
-	cout<<cluster->GetScintillatorID()<<endl; 
-      }
+    // for(int icl=0; icl<scintclusters->GetLast()+1; icl++)
+    //   {
+    // 	ScintillatorCluster* cluster = (ScintillatorCluster*)scintclusters->ConstructedAt(icl);
+    // 	cout<<cluster->GetScintillatorID()<<endl; 
+    //   }
 
 
     // Loop over reconstructed SCINTILLATOR Clusters
@@ -654,32 +618,14 @@ void analysis(
 
       scint_cluster_pos[scintid]->Fill(scintclusterfirstsampleid);
 
-      for(int j=0; j<scintclustersize; j++){
-  	if (cluster->GetSignal(j) > 3954) saturated_signal[scintid] = true; }
+      // for(int j=0; j<scintclustersize; j++){
+      // 	if (cluster->GetSignal(j) > 3954) saturated_signal[scintid] = true; }
 
-      if (scintclusterfirstsampleid<1240 || scintclusterfirstsampleid>1300) {
-  	non_trigger_particle = true;
-  	break; }
+      // if (scintclusterfirstsampleid<1240 || scintclusterfirstsampleid>1300) {
+      // 	non_trigger_particle = true;
+      // 	break; }
     }// loop over scintillator clusters
-	  	  
-    //--------------------- skipp events if there is no signal in either of the scintillators
-    if (n_scint_clusters!=4) continue;
-
-    //--------------------- skipp events with extra particles
-    if (non_trigger_particle) continue;
-   
-    n_single_particle_trigger_events++;
-
-    //--------------------- skipp events if scintilator signals in ch2 are suturated
-    if (saturated_signal[2]) continue;
-
-    // //--------------------- choose ions based on energy of scintillator clusters
-    //if (scint_cluster_charge[2]<55 || scint_cluster_charge[2]>63) continue;
     
-    // double sum;
-    // double average_q_x_except_max[6];
-    // double average_q_y_except_max[14];
-    // sum = 0.0; for (uint i=0; i<stk_clusters_x_e[0].size(); i++)  sum += stk_clusters_x_e[0].at(i);  average_q_x_except_max[0]  = (sum-stkcluster_maxe[0 ])/(stk_clusters_x_e[0 ].size()-1);
 
     //---------------------- calculate secondary clusters energy ratio
     double secondary_clusters_energy_ratio[20];
@@ -936,79 +882,79 @@ void analysis(
       //-------------------------- draw event display -------------------------//
       if (entry>=firsteventtodisplay && event_display_i<neventstodisplay) {
 	
-  	printf("\n@@@@@@@@@@@@@@@ Event %d [%d] @@@@@@@@@@@@@@@\n",event_display_i,entry);
+      	printf("\n@@@@@@@@@@@@@@@ Event %d [%d] @@@@@@@@@@@@@@@\n",event_display_i,entry);
 
-  	for (int i=0;  i<6; i++) { 
-  	  for (uint j=0; j<stk_clusters_pos[x_plane_id[i]].size(); j++) {
-  	    stk_hits_XZ[event_display_i]->Fill( stk_clusters_z[x_plane_id[i]], stk_clusters_pos[x_plane_id[i]].at(j), stk_clusters_e[x_plane_id[i]].at(j)); }}
+      	for (int i=0;  i<6; i++) { 
+      	  for (uint j=0; j<stk_clusters_pos[x_plane_id[i]].size(); j++) {
+      	    stk_hits_XZ[event_display_i]->Fill( stk_clusters_z[x_plane_id[i]], stk_clusters_pos[x_plane_id[i]].at(j), stk_clusters_e[x_plane_id[i]].at(j)); }}
 
-  	for (int i=0;  i<14; i++) { 
-  	  for (uint j=0; j<stk_clusters_pos[y_plane_id[i]].size(); j++) {
-  	    stk_hits_YZ[event_display_i]->Fill( stk_clusters_z[y_plane_id[i]], stk_clusters_pos[y_plane_id[i]].at(j), stk_clusters_e[y_plane_id[i]].at(j)); }}
+      	for (int i=0;  i<14; i++) { 
+      	  for (uint j=0; j<stk_clusters_pos[y_plane_id[i]].size(); j++) {
+      	    stk_hits_YZ[event_display_i]->Fill( stk_clusters_z[y_plane_id[i]], stk_clusters_pos[y_plane_id[i]].at(j), stk_clusters_e[y_plane_id[i]].at(j)); }}
 
-  	evtdisp_canv[event_display_i]->cd(1);
-  	evtdisp_canv[event_display_i]->cd(1)->SetLogz();
-  	stk_hits_XZ[event_display_i]->Draw("COLZ");
-  	if (!missing_x_hit_3a) {
-  	  x_track_3a_line[event_display_i]->SetX1(stk_clusters_z[0]);
-  	  x_track_3a_line[event_display_i]->SetY1(x_track_fit_results_3a.at(0)*stk_clusters_z[0]+x_track_fit_results_3a.at(2));
-  	  x_track_3a_line[event_display_i]->SetX2(stk_clusters_z[4]);
-  	  x_track_3a_line[event_display_i]->SetY2(x_track_fit_results_3a.at(0)*stk_clusters_z[4]+x_track_fit_results_3a.at(2));
-  	  x_track_3a_line[event_display_i]->SetLineColor(kGreen+2);
-  	  x_track_3a_line[event_display_i]->SetLineWidth(4);
-  	  x_track_3a_line[event_display_i]->SetLineStyle(2);
-  	  x_track_3a_line[event_display_i]->Draw("SAME"); }
-  	if (!missing_x_hit_3b) {
-  	  x_track_3b_line[event_display_i]->SetX1(stk_clusters_z[14]);
-  	  x_track_3b_line[event_display_i]->SetY1(x_track_fit_results_3b.at(0)*stk_clusters_z[14]+x_track_fit_results_3b.at(2));
-  	  x_track_3b_line[event_display_i]->SetX2(stk_clusters_z[18]);
-  	  x_track_3b_line[event_display_i]->SetY2(x_track_fit_results_3b.at(0)*stk_clusters_z[18]+x_track_fit_results_3b.at(2));
-  	  x_track_3b_line[event_display_i]->SetLineColor(kGreen+2);
-  	  x_track_3b_line[event_display_i]->SetLineWidth(4);
-  	  x_track_3b_line[event_display_i]->SetLineStyle(2);
-  	  x_track_3b_line[event_display_i]->Draw("SAME"); }
-  	if (!missing_x_hit_6) {
-  	  x_track_6_line[event_display_i]->SetX1(stk_clusters_z[0]);
-  	  x_track_6_line[event_display_i]->SetY1(x_track_fit_results_6.at(0)*stk_clusters_z[0]+x_track_fit_results_6.at(2));
-  	  x_track_6_line[event_display_i]->SetX2(stk_clusters_z[18]);
-  	  x_track_6_line[event_display_i]->SetY2(x_track_fit_results_6.at(0)*stk_clusters_z[18]+x_track_fit_results_6.at(2));
-  	  x_track_6_line[event_display_i]->SetLineColor(kRed);
-  	  x_track_6_line[event_display_i]->SetLineWidth(1);
-  	  x_track_6_line[event_display_i]->SetLineStyle(1);
-  	  x_track_6_line[event_display_i]->Draw("SAME"); }
-  	evtdisp_canv[event_display_i]->cd(2);
-  	evtdisp_canv[event_display_i]->cd(2)->SetLogz();
-  	stk_hits_YZ[event_display_i]->Draw("COLZ");
-  	if (!missing_y_hit_3a) {
-  	  y_track_3a_line[event_display_i]->SetX1(stk_clusters_z[1]);
-  	  y_track_3a_line[event_display_i]->SetY1(y_track_fit_results_3a.at(0)*stk_clusters_z[1]+y_track_fit_results_3a.at(2));
-  	  y_track_3a_line[event_display_i]->SetX2(stk_clusters_z[5]);
-  	  y_track_3a_line[event_display_i]->SetY2(y_track_fit_results_3a.at(0)*stk_clusters_z[5]+y_track_fit_results_3a.at(2));
-  	  y_track_3a_line[event_display_i]->SetLineColor(kGreen+2);
-  	  y_track_3a_line[event_display_i]->SetLineWidth(4);
-  	  y_track_3a_line[event_display_i]->SetLineStyle(2);
-  	  y_track_3a_line[event_display_i]->Draw("SAME"); }
-  	if (!missing_y_hit_3b) {
-  	  y_track_3b_line[event_display_i]->SetX1(stk_clusters_z[15]);
-  	  y_track_3b_line[event_display_i]->SetY1(y_track_fit_results_3b.at(0)*stk_clusters_z[15]+y_track_fit_results_3b.at(2));
-  	  y_track_3b_line[event_display_i]->SetX2(stk_clusters_z[19]);
-  	  y_track_3b_line[event_display_i]->SetY2(y_track_fit_results_3b.at(0)*stk_clusters_z[19]+y_track_fit_results_3b.at(2));
-  	  y_track_3b_line[event_display_i]->SetLineColor(kGreen+2);
-  	  y_track_3b_line[event_display_i]->SetLineWidth(4);
-  	  y_track_3b_line[event_display_i]->SetLineStyle(2);
-  	  y_track_3b_line[event_display_i]->Draw("SAME"); }
-  	if (!missing_y_hit_6) {
-  	  y_track_6_line[event_display_i]->SetX1(stk_clusters_z[1]);
-  	  y_track_6_line[event_display_i]->SetY1(y_track_fit_results_6.at(0)*stk_clusters_z[1]+y_track_fit_results_6.at(2));
-  	  y_track_6_line[event_display_i]->SetX2(stk_clusters_z[19]);
-  	  y_track_6_line[event_display_i]->SetY2(y_track_fit_results_6.at(0)*stk_clusters_z[19]+y_track_fit_results_6.at(2));
-  	  y_track_6_line[event_display_i]->SetLineColor(kRed);
-  	  y_track_6_line[event_display_i]->SetLineWidth(1);
-  	  y_track_6_line[event_display_i]->SetLineStyle(1);
-  	  y_track_6_line[event_display_i]->Draw("SAME"); }
-  	evtdisp_canv[event_display_i]->SaveAs(TString::Format("plots/run%d/evt_dsp_entry%d.png",(int)ion_mean_pos[run_id*16],entry));
-  	//------------------------------------------------------------------------//
-  	event_display_i++; }
+      	evtdisp_canv[event_display_i]->cd(1);
+      	evtdisp_canv[event_display_i]->cd(1)->SetLogz();
+      	stk_hits_XZ[event_display_i]->Draw("COLZ");
+      	if (!missing_x_hit_3a) {
+      	  x_track_3a_line[event_display_i]->SetX1(stk_clusters_z[0]);
+      	  x_track_3a_line[event_display_i]->SetY1(x_track_fit_results_3a.at(0)*stk_clusters_z[0]+x_track_fit_results_3a.at(2));
+      	  x_track_3a_line[event_display_i]->SetX2(stk_clusters_z[4]);
+      	  x_track_3a_line[event_display_i]->SetY2(x_track_fit_results_3a.at(0)*stk_clusters_z[4]+x_track_fit_results_3a.at(2));
+      	  x_track_3a_line[event_display_i]->SetLineColor(kGreen+2);
+      	  x_track_3a_line[event_display_i]->SetLineWidth(4);
+      	  x_track_3a_line[event_display_i]->SetLineStyle(2);
+      	  x_track_3a_line[event_display_i]->Draw("SAME"); }
+      	if (!missing_x_hit_3b) {
+      	  x_track_3b_line[event_display_i]->SetX1(stk_clusters_z[14]);
+      	  x_track_3b_line[event_display_i]->SetY1(x_track_fit_results_3b.at(0)*stk_clusters_z[14]+x_track_fit_results_3b.at(2));
+      	  x_track_3b_line[event_display_i]->SetX2(stk_clusters_z[18]);
+      	  x_track_3b_line[event_display_i]->SetY2(x_track_fit_results_3b.at(0)*stk_clusters_z[18]+x_track_fit_results_3b.at(2));
+      	  x_track_3b_line[event_display_i]->SetLineColor(kGreen+2);
+      	  x_track_3b_line[event_display_i]->SetLineWidth(4);
+      	  x_track_3b_line[event_display_i]->SetLineStyle(2);
+      	  x_track_3b_line[event_display_i]->Draw("SAME"); }
+      	if (!missing_x_hit_6) {
+      	  x_track_6_line[event_display_i]->SetX1(stk_clusters_z[0]);
+      	  x_track_6_line[event_display_i]->SetY1(x_track_fit_results_6.at(0)*stk_clusters_z[0]+x_track_fit_results_6.at(2));
+      	  x_track_6_line[event_display_i]->SetX2(stk_clusters_z[18]);
+      	  x_track_6_line[event_display_i]->SetY2(x_track_fit_results_6.at(0)*stk_clusters_z[18]+x_track_fit_results_6.at(2));
+      	  x_track_6_line[event_display_i]->SetLineColor(kRed);
+      	  x_track_6_line[event_display_i]->SetLineWidth(1);
+      	  x_track_6_line[event_display_i]->SetLineStyle(1);
+      	  x_track_6_line[event_display_i]->Draw("SAME"); }
+      	evtdisp_canv[event_display_i]->cd(2);
+      	evtdisp_canv[event_display_i]->cd(2)->SetLogz();
+      	stk_hits_YZ[event_display_i]->Draw("COLZ");
+      	if (!missing_y_hit_3a) {
+      	  y_track_3a_line[event_display_i]->SetX1(stk_clusters_z[1]);
+      	  y_track_3a_line[event_display_i]->SetY1(y_track_fit_results_3a.at(0)*stk_clusters_z[1]+y_track_fit_results_3a.at(2));
+      	  y_track_3a_line[event_display_i]->SetX2(stk_clusters_z[5]);
+      	  y_track_3a_line[event_display_i]->SetY2(y_track_fit_results_3a.at(0)*stk_clusters_z[5]+y_track_fit_results_3a.at(2));
+      	  y_track_3a_line[event_display_i]->SetLineColor(kGreen+2);
+      	  y_track_3a_line[event_display_i]->SetLineWidth(4);
+      	  y_track_3a_line[event_display_i]->SetLineStyle(2);
+      	  y_track_3a_line[event_display_i]->Draw("SAME"); }
+      	if (!missing_y_hit_3b) {
+      	  y_track_3b_line[event_display_i]->SetX1(stk_clusters_z[15]);
+      	  y_track_3b_line[event_display_i]->SetY1(y_track_fit_results_3b.at(0)*stk_clusters_z[15]+y_track_fit_results_3b.at(2));
+      	  y_track_3b_line[event_display_i]->SetX2(stk_clusters_z[19]);
+      	  y_track_3b_line[event_display_i]->SetY2(y_track_fit_results_3b.at(0)*stk_clusters_z[19]+y_track_fit_results_3b.at(2));
+      	  y_track_3b_line[event_display_i]->SetLineColor(kGreen+2);
+      	  y_track_3b_line[event_display_i]->SetLineWidth(4);
+      	  y_track_3b_line[event_display_i]->SetLineStyle(2);
+      	  y_track_3b_line[event_display_i]->Draw("SAME"); }
+      	if (!missing_y_hit_6) {
+      	  y_track_6_line[event_display_i]->SetX1(stk_clusters_z[1]);
+      	  y_track_6_line[event_display_i]->SetY1(y_track_fit_results_6.at(0)*stk_clusters_z[1]+y_track_fit_results_6.at(2));
+      	  y_track_6_line[event_display_i]->SetX2(stk_clusters_z[19]);
+      	  y_track_6_line[event_display_i]->SetY2(y_track_fit_results_6.at(0)*stk_clusters_z[19]+y_track_fit_results_6.at(2));
+      	  y_track_6_line[event_display_i]->SetLineColor(kRed);
+      	  y_track_6_line[event_display_i]->SetLineWidth(1);
+      	  y_track_6_line[event_display_i]->SetLineStyle(1);
+      	  y_track_6_line[event_display_i]->Draw("SAME"); }
+      	evtdisp_canv[event_display_i]->SaveAs(TString::Format("plots/run%d/evt_dsp_entry%d.png",(int)ion_mean_pos[run_id*16],entry));
+      	//------------------------------------------------------------------------//
+      	event_display_i++; }
 
       //------------------------- scintillators ----------------------------//
       for(int i=0; i<scintillators->GetLast()+1; i++){
@@ -1306,58 +1252,58 @@ void analysis(
   secondary_clusters_energy_ratio_y_dut_plane_canv->SaveAs(TString::Format("plots/run%d/secondary_clusters_energy_ratio_y_dut_plane",(int)ion_mean_pos[run_id*16])+"_canv.png");
 
   //----------------------------------- scintillator clusters
-  TCanvas *scint_cluster_q_canv = new TCanvas("scint_cluster_q_canv","scint_cluster_q_canv",1800,1000);
-  scint_cluster_q_canv->Divide(2,2);
-  for (int i=0; i<4; i++){
-    scint_cluster_q_canv->cd(i+1);
-    if (i==0 || i==2) scint_cluster_q[i]->GetXaxis()->SetRangeUser(0,200);
-    scint_cluster_q[i]->Draw();
+  // TCanvas *scint_cluster_q_canv = new TCanvas("scint_cluster_q_canv","scint_cluster_q_canv",1800,1000);
+  // scint_cluster_q_canv->Divide(2,2);
+  // for (int i=0; i<4; i++){
+  //   scint_cluster_q_canv->cd(i+1);
+  //   if (i==0 || i==2) scint_cluster_q[i]->GetXaxis()->SetRangeUser(0,200);
+  //   scint_cluster_q[i]->Draw();
     
-    if (i==2) { // scint. ch2 - non amp., upstream
+  //   if (i==2) { // scint. ch2 - non amp., upstream
       
-      TString multi_gaus_fitf_str = "";
-      int gaus_first_par_id = 0;
-      for (int j=1; j<16; j++) {
-  	if (ion_mean_pos[run_id*16+j]!=-1) {
-  	  if (multi_gaus_fitf_str!="") multi_gaus_fitf_str += "+";
-  	  multi_gaus_fitf_str += "gaus("+TString::Format("%d",gaus_first_par_id)+")";
-  	  gaus_first_par_id += 3; }}
-      TF1 *multi_gaus_fitf = new TF1("multi_gaus_fitf",multi_gaus_fitf_str);
-      double upper_limit = -999.99;
-      double lower_limit = -999.99;
-      gaus_first_par_id = 0;
-      for (int j=1; j<16; j++) {
-  	if (ion_mean_pos[run_id*16+j]!=-1) {
-  	  // set initial values for parameters
-  	  multi_gaus_fitf->SetParameter(gaus_first_par_id,1);
-  	  multi_gaus_fitf->SetParameter(gaus_first_par_id+1,ion_mean_pos[run_id*16+j]-4);
-  	  multi_gaus_fitf->SetParameter(gaus_first_par_id+2,0.6);
-  	  // set limits
-  	  multi_gaus_fitf->SetParLimits(gaus_first_par_id+1,ion_mean_pos[run_id*16+j]-4,ion_mean_pos[run_id*16+j]+1.5);
-  	  multi_gaus_fitf->SetParLimits(gaus_first_par_id+2,0.6,2.5);
-  	  if (lower_limit==-999.99) lower_limit = ion_mean_pos[run_id*16+j]-3;
-  	  upper_limit = ion_mean_pos[run_id*16+j]+1;
-  	  gaus_first_par_id += 3; }}
+  //     TString multi_gaus_fitf_str = "";
+  //     int gaus_first_par_id = 0;
+  //     for (int j=1; j<16; j++) {
+  // 	if (ion_mean_pos[run_id*16+j]!=-1) {
+  // 	  if (multi_gaus_fitf_str!="") multi_gaus_fitf_str += "+";
+  // 	  multi_gaus_fitf_str += "gaus("+TString::Format("%d",gaus_first_par_id)+")";
+  // 	  gaus_first_par_id += 3; }}
+  //     TF1 *multi_gaus_fitf = new TF1("multi_gaus_fitf",multi_gaus_fitf_str);
+  //     double upper_limit = -999.99;
+  //     double lower_limit = -999.99;
+  //     gaus_first_par_id = 0;
+  //     for (int j=1; j<16; j++) {
+  // 	if (ion_mean_pos[run_id*16+j]!=-1) {
+  // 	  // set initial values for parameters
+  // 	  multi_gaus_fitf->SetParameter(gaus_first_par_id,1);
+  // 	  multi_gaus_fitf->SetParameter(gaus_first_par_id+1,ion_mean_pos[run_id*16+j]-4);
+  // 	  multi_gaus_fitf->SetParameter(gaus_first_par_id+2,0.6);
+  // 	  // set limits
+  // 	  multi_gaus_fitf->SetParLimits(gaus_first_par_id+1,ion_mean_pos[run_id*16+j]-4,ion_mean_pos[run_id*16+j]+1.5);
+  // 	  multi_gaus_fitf->SetParLimits(gaus_first_par_id+2,0.6,2.5);
+  // 	  if (lower_limit==-999.99) lower_limit = ion_mean_pos[run_id*16+j]-3;
+  // 	  upper_limit = ion_mean_pos[run_id*16+j]+1;
+  // 	  gaus_first_par_id += 3; }}
 
-      multi_gaus_fitf->SetRange(lower_limit,upper_limit);
-      TVirtualFitter::SetMaxIterations(50000);
-      scint_cluster_q[i]->Fit(multi_gaus_fitf,"RLM");
+  //     multi_gaus_fitf->SetRange(lower_limit,upper_limit);
+  //     TVirtualFitter::SetMaxIterations(50000);
+  //     scint_cluster_q[i]->Fit(multi_gaus_fitf,"RLM");
 
-      printf("\n");
-      printf("%4s %10s %10s %10s\n","ion","const","mean","sigma");
-      gaus_first_par_id = 0;
-      for (int j=1; j<16; j++) {
-  	if (ion_mean_pos[run_id*16+j]!=-1) {
-  	  TString ion = ion_name[j];
-  	  double norm = multi_gaus_fitf->GetParameter(gaus_first_par_id);
-  	  double mean = multi_gaus_fitf->GetParameter(gaus_first_par_id+1);
-  	  double sigma = multi_gaus_fitf->GetParameter(gaus_first_par_id+2);
-  	  gaus_first_par_id += 3;
-  	  printf("%4s %10.2f %10.2f %10.2f\n",ion.Data(),norm,mean,sigma); }}
-      printf("\n");
-    }
-  }
-  scint_cluster_q_canv->SaveAs(TString::Format("plots/run%d/scint_cluster_q",(int)ion_mean_pos[run_id*16])+"_canv.png");
+  //     printf("\n");
+  //     printf("%4s %10s %10s %10s\n","ion","const","mean","sigma");
+  //     gaus_first_par_id = 0;
+  //     for (int j=1; j<16; j++) {
+  // 	if (ion_mean_pos[run_id*16+j]!=-1) {
+  // 	  TString ion = ion_name[j];
+  // 	  double norm = multi_gaus_fitf->GetParameter(gaus_first_par_id);
+  // 	  double mean = multi_gaus_fitf->GetParameter(gaus_first_par_id+1);
+  // 	  double sigma = multi_gaus_fitf->GetParameter(gaus_first_par_id+2);
+  // 	  gaus_first_par_id += 3;
+  // 	  printf("%4s %10.2f %10.2f %10.2f\n",ion.Data(),norm,mean,sigma); }}
+  //     printf("\n");
+  //   }
+  // }
+  // scint_cluster_q_canv->SaveAs(TString::Format("plots/run%d/scint_cluster_q",(int)ion_mean_pos[run_id*16])+"_canv.png");
 
   TCanvas *scint_cluster_pos_canv = new TCanvas("scint_cluster_pos_canv","scint_cluster_pos_canv",1800,1000);
   scint_cluster_pos_canv->Divide(2,2);
