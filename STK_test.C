@@ -139,7 +139,7 @@ hEnergyClusterMin[iladder] = new TH1D(Form("hEnergyCluster__min_iladder_%d",ladd
 
  TH1D *hEnergyClusterMax[NLadders];
  for(int iladder =0; iladder < NLadders; iladder++){
-hEnergyClusterMax[iladder] = new TH1D(Form("hEnergyCluster__max_iladder_%d",ladderID[iladder]),ladderName[iladder],120,0,3000);
+hEnergyClusterMax[iladder] = new TH1D(Form("hEnergyCluster__max_iladder_%d",ladderID[iladder]),ladderName[iladder],100,0,20);
    hEnergyClusterMax[iladder]->GetXaxis()->SetTitle("ADC");
  }//close for
  
@@ -268,7 +268,7 @@ hEnergyClusterMax[iladder] = new TH1D(Form("hEnergyCluster__max_iladder_%d",ladd
    }
    for(int iladder = 0; iladder < NLadders; iladder++){
      // cout << MaxCluster[iladder] << endl;
-     hEnergyClusterMax[iladder]->Fill(MaxCluster[iladder]);
+     hEnergyClusterMax[iladder]->Fill(sqrt(MaxCluster[iladder]/60));
    }
      
    for(int i=0; i<stkclusters->GetLast()+1; i++){

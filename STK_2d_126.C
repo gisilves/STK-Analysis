@@ -39,11 +39,11 @@ void STK_2d(char filename[200], int runnumber){
  TString term_cmd2 = "mkdir -pv "+TString::Format("Results/run%d",(int)runnumber);
  system(term_cmd2.Data());
 
- TString plotdirectory = TString::Format("Results/run%d",(int)runnumber);
+ TString plotdirectory = TString::Format("plots/run%d",(int)runnumber);
  TString run_string = TString::Format("%04d",(int)runnumber);
+ 
+TString outfile = TString::Format("Results/run%d",(int)runnumber)+"/out_2d_l126_"+run_string+".root";
 
- TString outfile = "Results/out_2d_"+run_string+".root";
-  
   
   TFile* f = new TFile(filename,"READ");
   TFile* out = new TFile(outfile, "recreate");
@@ -193,19 +193,19 @@ void STK_2d(char filename[200], int runnumber){
    TLine *l4 = new TLine(320,0,320,500);
    l4->Draw("SAME");
  }//close for
- c3->SaveAs(plotdirectory+"/2d_test_"+run_string+".png");
+ c3->SaveAs(plotdirectory+"/2d_test_126_"+run_string+".png");
 
  TCanvas *c4 = new TCanvas("c4", "2d test (half pitch)", 900,1000);
  gPad->SetLogz();
  h2testdoppiobond->Draw("colz");
  h2testdoppiobond->Write();
- c4->SaveAs(plotdirectory+"/2d_test_hp_"+run_string+".png");
+ c4->SaveAs(plotdirectory+"/2d_test_126_hp_"+run_string+".png");
    
  TCanvas *c5 = new TCanvas("c5", "2d test (8 Si)", 900,1000);
  gPad->SetLogz();
  h2test8si->Draw("colz");
  h2test8si->Write();
- c5->SaveAs(plotdirectory+"/2d_test_8si_"+run_string+".png");
+ c5->SaveAs(plotdirectory+"/2d_test_126_8si_"+run_string+".png");
 
 }//close macro
 
