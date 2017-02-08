@@ -139,7 +139,7 @@ hEnergyClusterMin[iladder] = new TH1D(Form("hEnergyCluster__min_iladder_%d",ladd
 
  TH1D *hEnergyClusterMax[NLadders];
  for(int iladder =0; iladder < NLadders; iladder++){
-hEnergyClusterMax[iladder] = new TH1D(Form("hEnergyCluster__max_iladder_%d",ladderID[iladder]),ladderName[iladder],100,0,20);
+hEnergyClusterMax[iladder] = new TH1D(Form("hEnergyCluster__max_iladder_%d",ladderID[iladder]),ladderName[iladder],100,-0.5,20.5);
    hEnergyClusterMax[iladder]->GetXaxis()->SetTitle("ADC");
  }//close for
  
@@ -186,6 +186,20 @@ hEnergyClusterMax[iladder] = new TH1D(Form("hEnergyCluster__max_iladder_%d",ladd
    hEta2D[iladder] = new TH2D(Form("Eta 2D_ladder_%d",ladderID[iladder]), Form("Eta 2d test ladder %d ",ladderID[iladder]), 100,-1,1,100,0,250);
    hEta2D[iladder]->GetXaxis()->SetTitle("Eta");
    hEta2D[iladder]->GetYaxis()->SetTitle("ADC");
+ }//close i for
+ 
+ TH2D *hZcorr[3];
+ for(int i=0; i<3;i++){
+   hZcorr[i] = new TH2D("Z_corr", "Z corr", 20,-0.5,20.5,20,-0.5,20.5);
+   hZcorr[i]->GetXaxis()->SetTitle("Z");
+   hZcorr[i]->GetYaxis()->SetTitle("Z");
+ }//close i for
+ 
+  TH2D *hZcorrLADD[8];
+ for(int i=0; i<8;i++){
+   hZcorrLADD[i] = new TH2D("Z_corr LADD", "Z corr LADD", 20,-0.5,20.5,20,-0.5,20.5);
+   hZcorrLADD[i]->GetXaxis()->SetTitle("Z");
+   hZcorrLADD[i]->GetYaxis()->SetTitle("Z");
  }//close i for
  
  //beam profile
@@ -262,14 +276,50 @@ hEnergyClusterMax[iladder] = new TH1D(Form("hEnergyCluster__max_iladder_%d",ladd
      }
    }// end maxcluster
 
+
+   //Fill Min e Max Cluster Histos
    for(int iladder = 0; iladder < NLadders; iladder++){
      // cout << MaxCluster[iladder] << endl;
      hEnergyClusterMin[iladder]->Fill(MinCluster[iladder]);
    }
    for(int iladder = 0; iladder < NLadders; iladder++){
      // cout << MaxCluster[iladder] << endl;
-     hEnergyClusterMax[iladder]->Fill(sqrt(MaxCluster[iladder]/60));
+     hEnergyClusterMax[iladder]->Fill(sqrt(MaxCluster[iladder]/60.0));
    }
+   /////
+
+ 
+   //Z coorelations//to do: truncated mean instead of mean
+   double cluster_mean_up=0;
+   //Upstream Telescope
+   for(int i=0; i<6; i++){cluster_mean_up+=MaxCluster[i];}
+   cluster_mean_up=sqrt(cluster_mean_up/6/60.0);
+   // cout << cluster_mean_up << endl;
+   
+   double cluster_mean_dut=0;
+   //Upstream Telescope
+   for(int i=6; i<14; i++){cluster_mean_dut+=MaxCluster[i];}
+   cluster_mean_dut=sqrt(cluster_mean_dut/6/60.0);
+   // cout << cluster_mean_dut << endl;
+   
+   double cluster_mean_dwn=0;
+   //Downstream Telescope
+   for(int i=14; i<20; i++){cluster_mean_dwn+=MaxCluster[i];}
+   cluster_mean_dwn=sqrt(cluster_mean_dwn/6/60.0);
+   //cout << cluster_mean_dwn << endl;
+
+   //corr UP,DUT,DWN
+   hZcorr[0]->Fill(cluster_mean_up,cluster_mean_dwn);
+   hZcorr[1]->Fill(cluster_mean_up,cluster_mean_dut);
+   hZcorr[2]->Fill(cluster_mean_dut,cluster_mean_dwn);
+
+   
+   //corr UP, Ladders
+   for(int i=0; i<8; i++){
+     hZcorrLADD[i]->Fill(sqrt(MaxCluster[i+6]/60),cluster_mean_up);
+			 }
+
+   
      
    for(int i=0; i<stkclusters->GetLast()+1; i++){
      DmpStkSiCluster* cluster = (DmpStkSiCluster*) stkclusters-> ConstructedAt(i);
@@ -382,61 +432,61 @@ hEnergyClusterMax[iladder] = new TH1D(Form("hEnergyCluster__max_iladder_%d",ladd
   
  }//close event loop
  
- TCanvas *c = new TCanvas("c", "Cluster Energy", 1920,1080);
- // gStyle->SetOptStat(0);
- c->Divide(5,4);
- for(int i=0; i< NLadders;i++){
-   c->cd(i+1);
-   hEnergyCluster[i]->SetLineColor(kRed);
-   hEnergyCluster[i]->SetLineWidth(2);
-   hEnergyCluster[i]->Draw();
+ // TCanvas *c = new TCanvas("c", "Cluster Energy", 1920,1080);
+ // // gStyle->SetOptStat(0);
+ // c->Divide(5,4);
+ // for(int i=0; i< NLadders;i++){
+ //   c->cd(i+1);
+ //   hEnergyCluster[i]->SetLineColor(kRed);
+ //   hEnergyCluster[i]->SetLineWidth(2);
+ //   hEnergyCluster[i]->Draw();
    
-   // hEnergyOneStrip[i]->SetLineColor(kBlue);
-   // hEnergyOneStrip[i]->Draw("SAME");
+ //   // hEnergyOneStrip[i]->SetLineColor(kBlue);
+ //   // hEnergyOneStrip[i]->Draw("SAME");
    
-   // hEnergyTwoStrip[i]->SetLineColor(kGreen);
-   // hEnergyTwoStrip[i]->Draw("SAME");
+ //   // hEnergyTwoStrip[i]->SetLineColor(kGreen);
+ //   // hEnergyTwoStrip[i]->Draw("SAME");
 
 
-   // hEnergyThreeStrip[i]->SetLineColor(kBlack);
-   // hEnergyThreeStrip[i]->Draw("SAME");
+ //   // hEnergyThreeStrip[i]->SetLineColor(kBlack);
+ //   // hEnergyThreeStrip[i]->Draw("SAME");
 
-   // gPad->BuildLegend();
+ //   // gPad->BuildLegend();
 
-  hEnergyCluster[i]->Write();
-  // hEnergyOneStrip[i]->Write();
-  // hEnergyTwoStrip[i]->Write();
-  // hEnergyThreeStrip[i]->Write();
- }//close for
- c->SaveAs(plotdirectory+"/henclust_"+run_string+".png");
+ //  hEnergyCluster[i]->Write();
+ //  // hEnergyOneStrip[i]->Write();
+ //  // hEnergyTwoStrip[i]->Write();
+ //  // hEnergyThreeStrip[i]->Write();
+ // }//close for
+ // c->SaveAs(plotdirectory+"/henclust_"+run_string+".png");
  
- TCanvas *ca = new TCanvas("ca", "Cluster Energy Min", 1920,1080);
- // gStyle->SetOptStat(0);
- ca->Divide(5,4);
- for(int i=0; i< NLadders;i++){
-   ca->cd(i+1);
-   hEnergyClusterMin[i]->SetLineColor(kRed);
-   hEnergyClusterMin[i]->SetLineWidth(2);
-   hEnergyClusterMin[i]->Draw();
+ // TCanvas *ca = new TCanvas("ca", "Cluster Energy Min", 1920,1080);
+ // // gStyle->SetOptStat(0);
+ // ca->Divide(5,4);
+ // for(int i=0; i< NLadders;i++){
+ //   ca->cd(i+1);
+ //   hEnergyClusterMin[i]->SetLineColor(kRed);
+ //   hEnergyClusterMin[i]->SetLineWidth(2);
+ //   hEnergyClusterMin[i]->Draw();
  
-  hEnergyClusterMin[i]->Write();
+ //  hEnergyClusterMin[i]->Write();
 
- }//close for
- ca->SaveAs(plotdirectory+"/henclust_min_"+run_string+".png");  
+ // }//close for
+ // ca->SaveAs(plotdirectory+"/henclust_min_"+run_string+".png");  
 
- TCanvas *cb = new TCanvas("cb", "Cluster Energy Max", 1920,1080);
- // gStyle->SetOptStat(0);
- cb->Divide(5,4);
- for(int i=0; i< NLadders;i++){
-   cb->cd(i+1);
-   hEnergyClusterMax[i]->SetLineColor(kRed);
-   hEnergyClusterMax[i]->SetLineWidth(2);
-   hEnergyClusterMax[i]->Draw();
+ // TCanvas *cb = new TCanvas("cb", "Cluster Energy Max", 1920,1080);
+ // // gStyle->SetOptStat(0);
+ // cb->Divide(5,4);
+ // for(int i=0; i< NLadders;i++){
+ //   cb->cd(i+1);
+ //   hEnergyClusterMax[i]->SetLineColor(kRed);
+ //   hEnergyClusterMax[i]->SetLineWidth(2);
+ //   hEnergyClusterMax[i]->Draw();
  
-  hEnergyClusterMax[i]->Write();
+ //  hEnergyClusterMax[i]->Write();
 
- }//close for
- cb->SaveAs(plotdirectory+"/henclust_max_"+run_string+".png");
+ // }//close for
+ // cb->SaveAs(plotdirectory+"/henclust_max_"+run_string+".png");
 
 
  // TCanvas *c1 = new TCanvas("c1", "# strips ", 1920,1080);
@@ -528,4 +578,24 @@ hEnergyClusterMax[iladder] = new TH1D(Form("hEnergyCluster__max_iladder_%d",ladd
  //   hNclusters[i]->Write();
  // }
  // c9->SaveAs(plotdirectory+"/n_clusters_"+run_string+".png");
+
+ TCanvas *c10 = new TCanvas("c10", "Z corr ",1920 ,1080);
+ c10->Divide(3,1);
+ for(int i=0; i< 3;i++){
+   c10->cd(i+1);
+   gPad->SetLogz();
+   hZcorr[i]->Draw("colz");
+   hZcorr[i]->Write();
+ }
+ c10->SaveAs(plotdirectory+"/z_corr_"+run_string+".png");
+
+  TCanvas *c11 = new TCanvas("c11", "Z corr LADD",1920 ,1080);
+ c11->Divide(4,2);
+ for(int i=0; i< 8;i++){
+   c11->cd(i+1);
+   gPad->SetLogz();
+   hZcorrLADD[i]->Draw("colz");
+   hZcorrLADD[i]->Write();
+ }
+ c11->SaveAs(plotdirectory+"/z_corr_LADD_"+run_string+".png");
 }//close macro
